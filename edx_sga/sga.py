@@ -299,15 +299,14 @@ class StaffGradedAssignmentXBlock(
         Finalize a student's uploaded submission. This prevents further uploads for the
         given block, and makes the submission available to instructors for grading
         """
-        submission_data = self.get_submission()
-        require(self.upload_allowed(submission_data=submission_data))
+        require(self.is_course_staff())
+        uuid = request.params['submission_id']
         # Editing the Submission record directly since the API doesn't support it
-        submission = Submission.objects.get(uuid=submission_data["uuid"])
-        if not submission.answer.get("finalized"):
-            submission.answer["finalized"] = True
-            submission.submitted_at = django_now()
-            submission.save()
-        return Response(json_body=self.student_state())
+        submission = Submission.objects.get(uuid=uuid)
+        submission.answer['finalized'] = True
+        submission.submitted_at = django_now()
+        submission.save()
+        return Response(json_body=self.staff_grading_data())
 
     @XBlock.handler
     def staff_upload_annotated(self, request, suffix=""):
@@ -414,24 +413,14 @@ class StaffGradedAssignmentXBlock(
         Persist a score for a student given by staff.
         """
         require(self.is_course_staff())
-        score = request.params.get("grade", None)
-        module = self.get_student_module(request.params["module_id"])
-        if not score:
-            return Response(
-                json_body=self.validate_score_message(
-                    module.course_id, module.student.username
-                )
-            )
+        score = request.params.get('grade', None)
+        module = self.get_student_module(request.params['module_id'])
 
         state = json.loads(module.state)
         try:
             score = int(score)
         except ValueError:
-            return Response(
-                json_body=self.validate_score_message(
-                    module.course_id, module.student.username
-                )
-            )
+            score = 0
 
         if self.is_instructor():
             uuid = request.params["submission_id"]
@@ -956,9 +945,8 @@ class StaffGradedAssignmentXBlock(
             submission_data if submission_data is not None else self.get_submission()
         )
         return (
-            not self.past_due()
-            and self.score is None
-            and not is_finalized_submission(submission_data)
+            not self.past_due() and
+            not is_finalized_submission(submission_data)
         )
 
     def file_storage_path(self, file_hash, original_filename):
@@ -1021,13 +1009,22 @@ class StaffGradedAssignmentXBlock(
         submission = self.get_submission()
         if not submission:
             return False
-        return submission["answer"]["finalized"]
+        return submission['answer']['filename']
+
+    def has_finished(self):
+        """
+        True if lector pushed button Finalized
+        """
+        submission = self.get_submission()
+        if not submission:
+            return False
+        return submission['answer']['finalized']
 
     def can_attempt(self):
         """
         True if the student can attempt the problem
         """
-        return not self.has_attempted()
+        return not self.has_finished()
 
     def runtime_user_is_staff(self):
         """
