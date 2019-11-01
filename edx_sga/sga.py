@@ -840,15 +840,12 @@ class StaffGradedAssignmentXBlock(
         )
 
         for submission in submissions:
-            if is_finalized_submission(submission_data=submission):
-                assignments.append(
-                    {
-                        "submission_id": submission["uuid"],
-                        "filename": submission["answer"]["filename"],
-                        "timestamp": submission["submitted_at"]
-                        or submission["created_at"],
-                    }
-                )
+            assignments.append({
+                'submission_id': submission['uuid'],
+                'filename': submission['answer']["filename"],
+                'timestamp': submission['submitted_at']
+                or submission['created_at']
+            })
 
         assignments.sort(key=lambda assignment: assignment["timestamp"], reverse=True)
         return assignments
