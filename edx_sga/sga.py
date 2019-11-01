@@ -49,10 +49,12 @@ from edx_sga.utils import (
     get_sha1,
     is_finalized_submission,
     utcnow,
+    utc_to_local,
 )
 
 log = logging.getLogger(__name__)
 
+DATETIME_FORMAT = '%d-%m-%Y %H:%M MSK'
 
 def reify(meth):
     """
@@ -822,7 +824,7 @@ class StaffGradedAssignmentXBlock(
                     "username": student_module.student.username,
                     "fullname": student_module.student.profile.name,
                     "filename": submission["answer"]["filename"],
-                    "timestamp": submission["created_at"].strftime(
+                    "timestamp": utc_to_local(submission["created_at"]).strftime(
                         DateTime.DATETIME_FORMAT
                     ),
                     "score": score,
