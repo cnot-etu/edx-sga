@@ -17,6 +17,7 @@ import six
 import pkg_resources
 import pytz
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.files import File
 from django.core.files.storage import default_storage
@@ -981,8 +982,13 @@ class StaffGradedAssignmentXBlock(
     def get_real_user(self):
         """returns session user"""
         if user_service := self.runtime.service(self, 'user'):
-            return user_service.get_user_by_anonymous_id()
-        return None
+            real_user_object = user_service.get_user_by_anonymous_id()
+        else:
+            try:
+                real_user_object = User.objects.get(id=self.runtime.user_id)
+            except User.DoesNotExist:
+                return False
+        return real_user_object
 
     def correctness_available(self):
         """
