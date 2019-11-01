@@ -304,9 +304,10 @@ class StaffGradedAssignmentXBlock(
         uuid = request.params['submission_id']
         # Editing the Submission record directly since the API doesn't support it
         submission = Submission.objects.get(uuid=uuid)
-        submission.answer['finalized'] = True
-        submission.submitted_at = django_now()
-        submission.save()
+        if not submission.answer.get('finalized'):
+            submission.answer['finalized'] = True
+            submission.submitted_at = django_now()
+            submission.save()
         return Response(json_body=self.staff_grading_data())
 
     @XBlock.handler
