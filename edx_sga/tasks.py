@@ -123,7 +123,7 @@ def get_zip_file_name(username, course_id, block_id):
         course_id (unicode): edx course id
         block_id (unicode): edx block id
     """
-    _id=hashlib.md5(block_id).hexdigest()
+    _id=hashlib.md5(block_id.encode('utf-8')).hexdigest()
     return f"{username}_submissions_{_id}_{course_id}.zip"
 
 
