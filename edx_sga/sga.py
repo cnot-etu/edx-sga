@@ -60,6 +60,8 @@ from edx_sga.utils import (
     get_file_storage_path,
     file_contents_iter,
     freshen_answer,
+    get_sha2,
+    size_of_file,
 )
 
 log = logging.getLogger(__name__)
@@ -316,6 +318,18 @@ class StaffGradedAssignmentXBlock(
         default_storage.save(path, File(upload.file))
         freshen_answer(module, True)
         self.fresh = True
+
+        from eventtracking import tracker
+        data = {
+            'username': user.username,
+            'course_id': self.block_course_id,
+            'type': answer['mimetype'],
+            'filename': answer['filename'],
+            'sha2': get_sha2(upload.file),
+            'size': size_of_file(upload.file),
+        }
+        tracker.emit('edx.attachment', data)
+
         return Response(json_body=self.student_state())
 
     @XBlock.handler
@@ -976,7 +990,7 @@ class StaffGradedAssignmentXBlock(
                     "student_id": student.student_id,
                     "submission_id": submission["uuid"],
                     "username": student_module.student.username,
-                    "fullname": student_module.student.profile.name,
+                    "fullname": student_module.student.last_name + ' ' + student_module.student.first_name,
                     "filename": submission["answer"]["filename"],
                     "timestamp": utc_to_local(submission["created_at"]).strftime(
                         DateTime.DATETIME_FORMAT
