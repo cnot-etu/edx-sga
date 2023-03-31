@@ -1,7 +1,7 @@
 """Constants"""
 
 BLOCK_SIZE = 2 ** 10 * 8  # 8kb
-ITEM_TYPE = "sga"
+ITEM_TYPE = "edx_sga"
 ATTR_KEY_ANONYMOUS_USER_ID = 'edx-platform.anonymous_user_id'
 ATTR_KEY_USER_IS_STAFF = 'edx-platform.user_is_staff'
 ATTR_KEY_USER_ROLE = 'edx-platform.user_role'
