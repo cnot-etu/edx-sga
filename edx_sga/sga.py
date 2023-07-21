@@ -37,7 +37,7 @@ from submissions.models import Submission
 from webob.response import Response
 from xblock.core import XBlock
 from xblock.exceptions import JsonHandlerError
-from xblock.fields import DateTime, Float, Integer, Scope, String
+from xblock.fields import DateTime, Float, Integer, Scope, String, Boolean
 from web_fragments.fragment import Fragment
 from xblockutils.studio_editable import StudioEditableXBlockMixin
 from xblockutils.resources import ResourceLoader
