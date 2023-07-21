@@ -675,7 +675,7 @@ class StaffGradedAssignmentXBlock(
 
         fragment = Fragment()
         fragment.add_content(
-            render_template("templates/staff_graded_assignment/show.html", context)
+            loader.render_template("templates/staff_graded_assignment/show.html", context)
         )
         fragment.add_css(_resource("static/css/edx_sga.css"))
         fragment.add_javascript(_resource("static/js/src/edx_sga.js"))
