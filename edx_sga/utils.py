@@ -1,7 +1,10 @@
 """
 Utility functions for the SGA XBlock
 """
+import hashlib
+import os
 import datetime
+from functools import partial
 import pytz
 import json
 
